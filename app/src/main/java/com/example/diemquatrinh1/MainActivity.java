@@ -2,7 +2,9 @@ package com.example.diemquatrinh1;
 
 import android.app.AlarmManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.Menu;
@@ -30,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import android.Manifest;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -41,6 +44,13 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    //cap quyen nhan thong bao
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+        requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+      }
+    }
 
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -106,9 +116,9 @@ public class MainActivity extends AppCompatActivity {
           new ActivityResultContracts.TakePicture(),
           result -> {
             if (result) {
+              saveLastCaptureTime();
               Toast.makeText(this, "Image captured!", Toast.LENGTH_SHORT).show();
               adapter.updateImages(loadImagesFromFolder());
-              // Hỏi người dùng có muốn chụp tiếp không
               showContinueDialog();
             } else {
               Toast.makeText(this, "Capture cancelled", Toast.LENGTH_SHORT).show();
@@ -130,6 +140,14 @@ public class MainActivity extends AppCompatActivity {
       }
     }
     return imageItems;
+  }
+
+  private void saveLastCaptureTime() {
+    long currentTime = System.currentTimeMillis();
+    getSharedPreferences("DailySelfieApp", MODE_PRIVATE)
+            .edit()
+            .putLong("lastCaptureTime", currentTime)
+            .apply();
   }
 
 

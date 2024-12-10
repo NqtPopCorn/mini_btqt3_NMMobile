@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -65,7 +66,11 @@ public class NotificationSettingActivity extends AppCompatActivity {
       calendar.add(Calendar.DATE, 1);
     }
 
-    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+//    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+    // Sử dụng setExactAndAllowWhileIdle để đảm bảo thông báo lặp lại hàng ngày
+    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+    Log.d("NotificationSettingActivity", "Daily reminder set for " + hour + ":" + minute);
+    Toast.makeText(this, "Daily reminder set for " + hour + ":" + minute, Toast.LENGTH_SHORT).show();
   }
 }
 
